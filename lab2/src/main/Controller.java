@@ -7,7 +7,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import main.algorithm.ClusterAnalysisEngine;
+import main.algorithm.Coordinate;
 import main.algorithm.OtsuMethod;
+import main.algorithm.impl.ClusterAnalysisEngineImpl;
+import main.algorithm.impl.Kmeans;
 import main.filter.FilterEngine;
 import main.filter.FilterStrategy;
 import main.filter.impl.DilationFilter;
@@ -17,8 +21,12 @@ import main.filter.impl.MedianFilter;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 public class Controller {
     public ImageView sourceImageView;
@@ -27,9 +35,11 @@ public class Controller {
     public ImageView binaryImageView;
     public ImageView erosionImageView;
     public ImageView dilationImageView;
+    public ImageView clusteredImageView;
     public TextField filterTimesTextField;
     public TextField erosionTimesTextField;
     public TextField dilationTimesTextField;
+    public TextField clustersCountTextField;
 
     private static final String[] IMAGES_EXTENSIONS = {"*.png", "*.jpg", "*.jpeg", "*.bmp"};
 
@@ -39,8 +49,10 @@ public class Controller {
     private BufferedImage binarizedBufferedImage;
     private BufferedImage erosionBufferedImage;
     private BufferedImage dilationBufferedImage;
+    private BufferedImage clusteredBufferedImage;
 
     private FilterEngine filterEngine = new FilterEngineImpl();
+    private ClusterAnalysisEngine analysisEngine = new ClusterAnalysisEngineImpl();
 
     public void openImageAction(ActionEvent actionEvent) {
         try {
@@ -120,6 +132,37 @@ public class Controller {
 
             setImage(dilationImageView, dilationBufferedImage);
         }
+    }
+
+    public void clusterAction(ActionEvent actionEvent) {
+        if (dilationBufferedImage != null) {
+            Map<Integer, Map<Integer, Set<Coordinate>>> objects = analysisEngine.doAnalysis(dilationBufferedImage, new Kmeans(),
+                    Integer.parseInt(clustersCountTextField.getText()));
+            fillClustersObject(objects);
+        }
+    }
+
+    private void fillClustersObject(Map<Integer, Map<Integer, Set<Coordinate>>> clusters) {
+        byte[] imageData = ((DataBufferByte) dilationBufferedImage.getData().getDataBuffer()).getData();
+        int color = 70;
+
+        for (Map.Entry<Integer, Map<Integer, Set<Coordinate>>> cluster : clusters.entrySet()) {
+            for (Map.Entry<Integer, Set<Coordinate>> object : cluster.getValue().entrySet()) {
+                for (Coordinate coordinate : object.getValue()) {
+                    imageData[(int) coordinate.getAbsolute()] = (byte) color;
+                }
+            }
+            color += 70;
+        }
+
+        clusteredBufferedImage = new BufferedImage(dilationBufferedImage.getColorModel(),
+                Raster.createWritableRaster(dilationBufferedImage.getSampleModel(),
+                        new DataBufferByte(imageData, imageData.length),
+                        null),
+                dilationBufferedImage.getColorModel().isAlphaPremultiplied(),
+                null);
+
+        setImage(clusteredImageView, clusteredBufferedImage);
     }
 
     private File getFileByMask(String neededFile, String[] mask) {
