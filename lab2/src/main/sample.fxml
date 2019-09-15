@@ -25,6 +25,7 @@
                   <Button mnemonicParsing="false" onAction="#erosionImageAction" text="Erosion" />
                   <TextField fx:id="dilationTimesTextField" promptText="times" />
                   <Button mnemonicParsing="false" onAction="#dilationImageAction" text="Dilation" />
+                  <Button mnemonicParsing="false" onAction="#filterErosionImageAction" text="Filter erosion" />
                   <TextField fx:id="clustersCountTextField" promptText="Clusters count" />
                   <Button mnemonicParsing="false" onAction="#clusterAction" text="Analysis" />
               </items>

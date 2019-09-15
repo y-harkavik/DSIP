@@ -181,4 +181,19 @@ public class Controller {
     private void setImage(ImageView imageView, BufferedImage bufferedImage) {
         imageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
     }
+
+    public void filterErosionImageAction(ActionEvent actionEvent) {
+        if (erosionBufferedImage != null) {
+            FilterStrategy filterStrategy = new MedianFilter();
+            BufferedImage temp = erosionBufferedImage;
+
+            for (int i = 0; i < Integer.parseInt(filterTimesTextField.getText()); i++) {
+                temp = filterEngine.doFilter(temp,
+                        filterStrategy);
+            }
+            erosionBufferedImage = temp;
+
+            setImage(erosionImageView, erosionBufferedImage);
+        }
+    }
 }
