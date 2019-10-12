@@ -24,8 +24,8 @@ public class Hopfield {
 
 
     private void initializeCoefficients(int[] inputImage) {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
+        for (int i = 0; i < inputImage.length; i++) {
+            for (int j = 0; j < inputImage.length; j++) {
                 if (i == j)
                     weightMatrix[i][j] = 0;
                 else
@@ -41,16 +41,16 @@ public class Hopfield {
 
         while (!isImageRecognized || times-- > 0) {
             //заносим входящие значения
-            for (int i = 0; i < SIZE; i++) {
+            for (int i = 0; i < recognizedImage.length; i++) {
                 neurons[i].setX(recognizedImage[i]);
                 lastOutputValues[i] = neurons[i].getY();
             }
 
             //сначало вычисляем S потом У
-            for (int i = 0; i < SIZE; i++) {
+            for (int i = 0; i < recognizedImage.length; i++) {
                 int newState = 0;
                 for (int j = 0; j < SIZE; j++) {
-                    newState += weightMatrix[j][neurons[i].getIndex()] * neurons[j].getX();
+                    newState += weightMatrix[neurons[i].getIndex()][j] * neurons[j].getX();
                 }
                 neurons[i].setState(newState);
                 neurons[i].changeState();
@@ -58,14 +58,14 @@ public class Hopfield {
             isImageRecognized = true;
 
             //проверяем на равенство входного и выходного векторов
-            for (int i = 0; i < SIZE; i++) {
+            for (int i = 0; i < lastOutputValues.length; i++) {
                 if (lastOutputValues[i] != neurons[i].getY()) {
                     isImageRecognized = false;
                     break;
                 }
             }
 
-            for (int i = 0; i < SIZE; i++) {
+            for (int i = 0; i < recognizedImage.length; i++) {
                 recognizedImage[i] = neurons[i].getY();
             }
         }
