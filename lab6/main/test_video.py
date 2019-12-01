@@ -47,15 +47,12 @@ def main():
 
         nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(mask1, connectivity=8)
         sizes = stats[1:, -1]
-        if i == 1900:
-            is_writable = False
 
         if nb_components - 1 != 0:
             max_component_index = np.argmax(sizes) + 1
             image_with_max_component = np.zeros(output.shape)
 
             max_component_stat = stats[max_component_index]
-            max_component_centroid = centroids[max_component_index]
             image_with_max_component[output == max_component_index] = 255
 
             if max_component_stat[4] > 20000 and (max_component_stat[2] / max_component_stat[3]) > 1 \
