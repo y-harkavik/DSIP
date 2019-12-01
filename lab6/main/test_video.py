@@ -3,7 +3,6 @@ import cv2
 import os
 import shutil
 from skimage.measure import compare_ssim
-import sys
 
 dirname = 'images'
 video_name = 'vid2.avi'
